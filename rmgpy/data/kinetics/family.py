@@ -1050,6 +1050,7 @@ class KineticsFamily(Database):
             logging.info('Must be because you turned off the training depository.')
             return
         
+        tentries = depository.entries
         
         index = max([e.index for e in self.rules.getEntries()] or [0]) + 1
         
@@ -1064,6 +1065,8 @@ class KineticsFamily(Database):
                 # this family; save them so we can try this
                 reverse_entries.append(entry)
                 continue
+            
+            tentries[entry.index].item.is_forward = True
             
             assert isinstance(entry.data, Arrhenius)
             data = deepcopy(entry.data)
@@ -1092,6 +1095,8 @@ class KineticsFamily(Database):
         # Process the entries that are stored in the reverse direction of the
         # family definition
         for entry in reverse_entries:
+            
+            tentries[entry.index].item.is_forward = False
             
             assert isinstance(entry.data, Arrhenius)
             data = deepcopy(entry.data)
