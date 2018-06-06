@@ -445,6 +445,7 @@ def loadInputFile(path):
         'species': species,
         'transitionState': transitionState,
         'network': network,
+        'database': database,
         # Jobs
         'kinetics': kinetics,
         'statmech': statmech,
