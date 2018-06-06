@@ -512,7 +512,7 @@ class CoreEdgeReactionModel:
         forward.reactants = reactants
         forward.products  = products
 
-        if checkExisting:
+        if checkExisting and hasattr(forward,'family'):
             found, rxn = self.checkForExistingReaction(forward)
             if found: return rxn, False
 
@@ -1446,7 +1446,7 @@ class CoreEdgeReactionModel:
         rxns = seedMechanism.getLibraryReactions()
         
         for rxn in rxns:
-            if isinstance(rxn,LibraryReaction) and not (rxn.library in libraryNames): #if one of the reactions in the library is from another library load that library
+            if isinstance(rxn,LibraryReaction) and not (rxn.library in libraryNames) and not (rxn.library == 'kineticsjobs'): #if one of the reactions in the library is from another library load that library
                 database.kinetics.libraryOrder.append((rxn.library,'Internal'))
                 database.kinetics.loadLibraries(path=path,libraries=[rxn.library])
                 libraryNames = database.kinetics.libraries.keys()
