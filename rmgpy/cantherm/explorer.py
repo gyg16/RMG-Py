@@ -95,7 +95,66 @@ class ExplorerJob(object):
         for lib in kineticsDatabase.libraryOrder:
             if lib[0] != 'kineticsjobs':
                 reactionModel.addReactionLibraryToEdge(lib[0])
+        
+        if outputFile is not None:
+            if not os.path.exists(os.path.join(reactionModel.pressureDependence.outputFile,'pdep')):
+                os.mkdir(os.path.join(reactionModel.pressureDependence.outputFile,'pdep'))
+            else:
+                shutil.rmtree(os.path.join(reactionModel.pressureDependence.outputFile,'pdep'))
+                os.mkdir(os.path.join(reactionModel.pressureDependence.outputFile,'pdep'))
+            
+        #get the molecular formula for the network
+        
+        mmol = None
+        for spc in self.source:
+            if mmol:
+                mmol.merge(spc.molecule[0])
+            else:
+                mmol = spc.molecule[0]
 
+        form = mmol.getFormula()
+        
+        for spec in self.pdepjob.network.bathGas.keys():
+            nspec,isNew = reactionModel.makeNewSpecies(spec,reactive=False)
+            flags = np.array([s.molecule[0].getFormula()==form for s in reactionModel.core.species])
+            reactionModel.enlarge(nspec,reactEdge=False,unimolecularReact=flags,
+                    bimolecularReact=np.zeros((len(reactionModel.core.species),len(reactionModel.core.species))))
+        
+        for spc in reactionModel.core.species:
+            for i,item in enumerate(self.source):
+                if spc.isIsomorphic(item):
+                    self.source[i] = spc
+        
+        
+        #react initial species
+        flags = np.array([s.molecule[0].getFormula()==form for s in reactionModel.core.species])
+        logging.info('flags: {0}'.format(flags))
+        reactionModel.enlarge(reactEdge=True,unimolecularReact=flags,
+                      bimolecularReact=np.zeros((len(reactionModel.core.species),len(reactionModel.core.species))))
+        
+        #find the network we're interested in
+        for nwk in reactionModel.networkList:
+            if set(nwk.source) == set(self.source):
+                self.source = nwk.source
+                network = nwk
+                break
+        else:
+            raise ValueError('did not generate a network with the requested source')
+        
+        self.network = network
+        
+        #determine T and P combinations
+        
+        if self.pdepjob.Tlist:
+            Tlist = self.pdepjob.Tlist.value_si
+        else:
+            Tlist = np.linspace(self.pdepjob.Tmin.value_si,self.pdepjob.Tmax.value_si,self.pdepjob.Tcount)
+            
+        if self.pdepjob.Plist:
+            Plist = self.pdepjob.Plist.value_si
+        else:
+            Plist = np.linspace(self.pdepjob.Pmin.value_si,self.pdepjob.Pmax.value_si,self.pdepjob.Pcount)
+            
         
         
         
