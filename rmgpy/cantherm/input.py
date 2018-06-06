@@ -173,6 +173,7 @@ def species(label, *args, **kwargs):
         collisionModel = None
         energyTransferModel = None
         thermo = None
+        reactive = True
         for key, value in kwargs.items():
             if key == 'structure':
                 structure = value
@@ -192,6 +193,8 @@ def species(label, *args, **kwargs):
                 energyTransferModel = value
             elif key == 'thermo':
                 thermo = value
+            elif key == 'reactive':
+                reactive = value
             else:
                 raise TypeError('species() got an unexpected keyword argument {0!r}.'.format(key))
             
@@ -201,6 +204,7 @@ def species(label, *args, **kwargs):
         spec.transportData = collisionModel
         spec.energyTransferModel = energyTransferModel
         spec.thermo = thermo
+        spec.reactive = reactive
         
     return spec
 
