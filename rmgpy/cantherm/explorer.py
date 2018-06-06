@@ -64,6 +64,37 @@ class ExplorerJob(object):
             flux_tol=self.flux_tol
         )
         
+    def execute(self, outputFile, plot, format='pdf', print_summary=True, speciesList=None, thermoLibrary=None, kineticsLibrary=None):
+        
+        logging.info('Exploring network...')
+        
+        reactionModel = CoreEdgeReactionModel()
+        
+        reactionModel.pressureDependence = self.pdepjob
+        
+        reactionModel.pressureDependence.rmgmode = True
+        
+        if outputFile:
+            reactionModel.pressureDependence.outputFile = os.path.dirname(outputFile)
+        
+        kineticsDatabase = getDB('kinetics')
+        thermoDatabase = getDB('thermo')
+        
+        thermoDatabase.libraries['thermojobs'] = thermoLibrary
+        thermoDatabase.libraryOrder.insert(0,'thermojobs')
+        
+        kineticsDatabase.libraries['kineticsjobs'] = kineticsLibrary
+        kineticsDatabase.libraryOrder.insert(0,('kineticsjobs','Reaction Library'))
+        
+        reactionModel.addSeedMechanismToCore('kineticsjobs')
+        
+        jobRxns = [rxn for rxn in reactionModel.core.reactions]
+        
+        self.jobRxns = jobRxns
+        
+        for lib in kineticsDatabase.libraryOrder:
+            if lib[0] != 'kineticsjobs':
+                reactionModel.addReactionLibraryToEdge(lib[0])
 
         
         
