@@ -193,6 +193,43 @@ class ExplorerJob(object):
             if rxn not in network.pathReactions:
                 warns.append('Reaction {0} in the input file was not explored during network expansion and was not included in the full network.  This is likely because your explore_tol value is too high.'.format(rxn))
         
+        #reduction process
+        
+        if self.energy_tol != np.inf or self.flux_tol != 0.0:
+            
+            rxnSet = None
+            
+            for T in Tlist:
+                if self.energy_tol:
+                    rxns = network.get_energy_filtered_reactions(T,self.energy_tol)
+                    if rxnSet:
+                        rxnSet &= set(rxns)
+                    else:
+                        rxnSet = set(rxns)
+                    
+                for P in Plist:
+                    if self.flux_tol:
+                        rxns = network.get_rate_filtered_reactions(T,P,self.flux_tol)
+                        if rxnSet:
+                            rxnSet &= set(rxns)
+                        else:
+                            rxnSet = set(rxns)              
+            network.remove_reactions(reactionModel,list(rxnSet))
+        
+            for rxn in jobRxns:
+                if rxn not in network.pathReactions:
+                    warns.append('Reaction {0} in the input file was not included in the reduced model.'.format(rxn))
+    
+        self.network = network
+        
+        self.pdepjob.network = network
+        
+        self.pdepjob.execute(outputFile, plot, format='pdf', print_summary=True)
+        
+        if warns != []:
+            logging.info('\nOUTPUT WARNINGS:\n')
+            for w in warns:
+                logging.warning(w)
         
         
         
