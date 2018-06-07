@@ -181,7 +181,7 @@ def generateFluxDiagram(reactionModel, times, concentrations, reactionRates, out
                                      maxReactionRates,
                                      maxSpeciesRates,
                                      reactionCount=centralReactionCount,
-                                     rad=-1,
+                                     rad=-1,  # "-1" signifies that we add nodes until they connect to the main graph
                                      mainNodes=nodesCopy)
 
     # Create the master graph
