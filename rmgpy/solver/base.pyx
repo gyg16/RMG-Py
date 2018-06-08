@@ -920,6 +920,15 @@ cdef class ReactionSystem(DASx):
                     # Set the maximum bi/trimolecular rate by using the user-defined rate constant threshold
                     bimolecularThresholdVal = toleranceMoveToCore * charRate / bimolecularThresholdRateConstant
                     trimolecularThresholdVal = toleranceMoveToCore * charRate / trimolecularThresholdRateConstant
+                else:  # Liquid phase
+                    # Set the maximum bimolecular rate by approximating diffusivity with Stokes-Einstein equation and
+                    # rate constant with Smoluchowski equation with r=2 Angstrom
+                    bimolecularThresholdVal = (toleranceMoveToCore * charRate /
+                                               (22.2*self.T.value_si/self.viscosity))
+                    # Set the maximum trimolecular rate by approximating diffusivity with Stokes-Einstein equation and
+                    # rate constant with trimolecular Smoluchowski equation (same parameters as for bimolecular)
+                    trimolecularThresholdVal = (toleranceMoveToCore * charRate /
+                                                (0.11*self.T.value_si/self.viscosity))
                 for i in xrange(numCoreSpecies):
                     if not unimolecularThreshold[i]:
                         # Check if core species concentration has gone above threshold for unimolecular reaction
