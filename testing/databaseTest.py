@@ -443,14 +443,14 @@ class TestDatabase():  # cannot inherit from unittest.TestCase if we want to use
             if k < 0:
                 boo = True
                 logging.error('library reaction {0} from library {1}, had a negative rate at 1000 K, 1 bar'.format(rxn,library.label))
-            if len(rxn.reactants) == 1:
+            if len(rxn.reactants) == 1 and rxn.allow_max_rate_violation==False:
                 if k > (kB*T)/h:
                     boo = True
-                    logging.error('library reaction {0} from library {1}, exceeds the TST limit at 1000 K, 1 bar'.format(rxn,library.label))
-            elif len(rxn.reactants) == 2:
+                    logging.error('library reaction {0} from library {1}, exceeds the TST limit at 1000 K, 1 bar and did not have allow_max_rate_violation=True'.format(rxn,library.label))
+            elif len(rxn.reactants) == 2 and rxn.allow_max_rate_violation==False:
                 if k > Na*np.pi*Hrad_diam**2*np.sqrt(8*kB*T/(np.pi*mHrad/2)):
                     boo = True
-                    logging.error('library reaction {0} from library {1}, exceeds the collision limit at 1000 K, 1 bar'.format(rxn,library.label)) 
+                    logging.error('library reaction {0} from library {1}, exceeds the collision limit at 1000 K, 1 bar and did not have allow_max_rate_violation=True'.format(rxn,library.label)) 
         if boo:
             raise ValueError('library {0} has unreasonable rates'.format(library.label))
                 

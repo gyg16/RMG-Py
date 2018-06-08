@@ -104,6 +104,7 @@ class Reaction:
                  pairs=None,
                  allow_pdep_route=False,
                  elementary_high_p=False,
+                 allow_max_rate_violation=False,
                  comment='',
                  ):
         self.index = index
