@@ -378,7 +378,7 @@ def find_degenerate_reactions(rxn_list, same_reactants=None, template=None, kine
         rxn_list.append(rxn)
 
     for rxn in rxn_list:
-        if rxn.isForward:
+        if rxn.is_forward:
             reduce_same_reactant_degeneracy(rxn, same_reactants)
         else:
             # fix the degeneracy of (not ownReverse) reactions found in the backwards direction
@@ -401,7 +401,7 @@ def reduce_same_reactant_degeneracy(reaction, same_reactants=None):
     This comes from work by Bishop and Laidler in 1965
     """
     if len(reaction.reactants) == 2 and (
-                (reaction.isForward and same_reactants) or
+                (reaction.is_forward and same_reactants) or
                 reaction.reactants[0].isIsomorphic(reaction.reactants[1])
             ):
         reaction.degeneracy *= 0.5
